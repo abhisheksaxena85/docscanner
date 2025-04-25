@@ -1,10 +1,10 @@
-# docscanner
+# Doc-Scanner
 
-A new Flutter project.
+.Doc-Scanner is a document scanner focued to make document scanning easy with different-different types of features for a scanned document. This project is for college as a final year project to showcase skills to the college. It will be available for Android,iOS,MacOS,Windows.
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+.It is completly free and opensourse, so anyone can use this and modify after making it's copy.
 
 A few resources to get you started if this is your first Flutter project:
 
