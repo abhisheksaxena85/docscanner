@@ -1,5 +1,8 @@
+import 'package:docscanner/utils/themes/main_theme.dart';
 import 'package:docscanner/views/screen/dashboard/dashboard.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/route_manager.dart';
 
 void main() {
   runApp(const MyApp());
@@ -10,20 +13,16 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Doc-Scanner',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        useMaterial3: true,
-        buttonTheme: const ButtonThemeData(
-          buttonColor: Colors.blue,
-          textTheme: ButtonTextTheme.primary,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(8)),
-          ),
-        ),
-      ),
-      home: const Dashboard(),
-    );
+    return ScreenUtilInit(
+        designSize: const Size(412, 892),
+        minTextAdapt: true,
+        builder: (context, child) {
+          return GetMaterialApp(
+            title: 'Doc-Scanner',
+            debugShowCheckedModeBanner: false,
+            theme: mainTheme(),
+            home: const Dashboard(),
+          );
+        });
   }
 }
