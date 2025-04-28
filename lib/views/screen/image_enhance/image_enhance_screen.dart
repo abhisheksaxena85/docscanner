@@ -1,12 +1,18 @@
 // ignore_for_file: deprecated_member_use
 
+import 'dart:io';
+
 import 'package:docscanner/utils/app_colors.dart';
 import 'package:docscanner/utils/app_images.dart';
 import 'package:docscanner/viewmodel/image_enhancement/image_enhancement_viewmodel.dart';
+import 'package:docscanner/views/screen/image_enhance/image_enhance_editing_screen.dart';
+import 'package:docscanner/views/widgets/image_view/image_view.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class ImageEnhanceScreen extends StatefulWidget {
   const ImageEnhanceScreen({super.key});
@@ -21,15 +27,13 @@ class _ImageEnhanceScreenState extends State<ImageEnhanceScreen> {
   @override
   Widget build(BuildContext context) {
     return Container(
+      height: MediaQuery.of(context).size.height,
       color: AppColors.brandBgColor,
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           _buildImageContainer(context),
-          SizedBox(
-            height: 10.h,
-          ),
           _buildSelectButton(),
         ],
       ),
@@ -38,57 +42,224 @@ class _ImageEnhanceScreenState extends State<ImageEnhanceScreen> {
 
   Widget _buildImageContainer(BuildContext context) {
     var height = MediaQuery.of(context).size.height;
-    return Container(
-        width: double.infinity,
-        height: height * 0.7.h,
-        margin: EdgeInsets.symmetric(horizontal: 12.w),
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          border: Border.all(
-            color: AppColors.teritiaryBlackColor.withOpacity(0.5),
-            width: 0.6,
-          ),
-          color: AppColors.lavendarBlueColor.withOpacity(0.3),
-          borderRadius: BorderRadius.circular(10.r),
-        ),
-        child: Container(
-          padding: EdgeInsets.all(20.r),
+    return GetBuilder<ImageEnhancementViewmodel>(builder: (controller) {
+      return Container(
+          width: double.infinity,
+          height: height * 0.7,
+          margin: EdgeInsets.symmetric(horizontal: 12.w),
+          alignment: Alignment.center,
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(26.r),
             border: Border.all(
-              color: AppColors.whiteBgColor,
-              width: 1,
+              color: AppColors.teritiaryBlackColor.withOpacity(0.5),
+              width: 0.6,
             ),
+            color: controller.selectedImage == null
+                ? Colors.transparent
+                : AppColors.primaryBlackColor,
+            borderRadius: BorderRadius.circular(10.r),
           ),
-          child: SvgPicture.asset(
-            AppImages.imagePlaceholderIcon,
-            height: 120.h,
-            width: 120.w,
-            color: AppColors.brandColor.withOpacity(1),
-          ),
-        ));
+          child: controller.selectedImage == null
+              ? Container(
+                  padding: EdgeInsets.all(20.r),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(26.r),
+                    border: Border.all(
+                      color: AppColors.brandColor,
+                      width: 1,
+                    ),
+                  ),
+                  child: SvgPicture.asset(
+                    AppImages.imagePlaceholderIcon,
+                    height: 120.h,
+                    width: 120.w,
+                    color: AppColors.brandColor.withOpacity(1),
+                  ),
+                )
+              : InkWell(
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => ImageView(
+                                  image: controller.selectedImage,
+                                )));
+                  },
+                  onLongPress: () {
+                    showAlertDialog();
+                  },
+                  child: Hero(
+                    tag: controller.selectedImage!.path,
+                    child: Image.file(
+                      File(controller.selectedImage?.path ?? ''),
+                      fit: BoxFit.fitHeight,
+                    ),
+                  ),
+                ));
+    });
   }
 
   Widget _buildSelectButton() {
-    return Container(
-      width: MediaQuery.of(context).size.width,
-      height: 60.h,
-      margin: EdgeInsets.symmetric(horizontal: 5.w),
-      decoration: BoxDecoration(
-        color: AppColors.brandColor,
-        borderRadius: BorderRadius.all(
-          Radius.circular(8.r),
+    return GetBuilder<ImageEnhancementViewmodel>(builder: (controller) {
+      return Container(
+        width: MediaQuery.of(context).size.width,
+        height: 60.h,
+        margin: EdgeInsets.symmetric(horizontal: 12.w),
+        decoration: BoxDecoration(
+          color: AppColors.brandColor,
+          borderRadius: BorderRadius.all(
+            Radius.circular(8.r),
+          ),
         ),
-      ),
+        child: controller.selectedImage == null
+            ? _buildCaptureSelectButton()
+            : _buildEnhanceButton(),
+      );
+    });
+  }
+
+  Widget _buildEnhanceButton() {
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) =>
+                    ImageEnhanceEditingScreen(file: controller.selectedImage)));
+      },
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          TextButton(
-            onPressed: () {},
-            child: Text('Select Image'),
+          Icon(
+            Icons.photo_filter_rounded,
+            color: AppColors.whiteBgColor,
+            size: 20.sp,
+          ),
+          SizedBox(
+            width: 10.w,
+          ),
+          Text(
+            'Enhance Image',
+            style: GoogleFonts.openSans(
+                fontSize: 16.sp,
+                fontWeight: FontWeight.w600,
+                color: AppColors.whiteBgColor),
           ),
         ],
       ),
     );
+  }
+
+  Widget _buildCaptureSelectButton() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        InkWell(
+          onTap: () {
+            controller.captureImage();
+          },
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.camera_alt_outlined,
+                color: AppColors.whiteBgColor,
+                size: 20.sp,
+              ),
+              SizedBox(
+                width: 10.w,
+              ),
+              Text(
+                'Capture Image',
+                style: GoogleFonts.openSans(
+                    fontSize: 15.sp,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.whiteBgColor),
+              ),
+            ],
+          ),
+        ),
+        InkWell(
+          onTap: () {
+            controller.selectImage();
+          },
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.photo_library_outlined,
+                color: AppColors.whiteBgColor,
+                size: 20.sp,
+              ),
+              SizedBox(
+                width: 10.w,
+              ),
+              Text(
+                'Select Image',
+                style: GoogleFonts.openSans(
+                    fontSize: 15.sp,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.whiteBgColor),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  void showAlertDialog() {
+    showDialog(
+        context: context,
+        builder: (_) {
+          return CupertinoAlertDialog(
+            title: Text(
+              'Reset Image',
+              style: GoogleFonts.openSans(
+                  fontSize: 20.sp,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.primaryBlackColor),
+            ),
+            content: Text(
+              'Are you sure you want to reset the image?',
+              textAlign: TextAlign.start,
+              style: GoogleFonts.openSans(
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.w400,
+                  color: AppColors.secondaryBlackColor),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text(
+                  'Cancel',
+                  style: GoogleFonts.openSans(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.brandColor),
+                ),
+              ),
+              TextButton(
+                onPressed: () {
+                  controller.selectedImage = null;
+                  controller.update();
+                  Navigator.pop(context);
+                },
+                child: Text(
+                  'Reset',
+                  style: GoogleFonts.openSans(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.brandColor),
+                ),
+              ),
+            ],
+          );
+        });
   }
 }

@@ -38,6 +38,7 @@ class _DashboardState extends State<Dashboard>
       child: Scaffold(
           backgroundColor: AppColors.brandBgColor,
           appBar: AppBar(
+            backgroundColor: AppColors.brandBgColor,
             toolbarHeight: 0.h,
             title: const Text('Dashboard'),
           ),

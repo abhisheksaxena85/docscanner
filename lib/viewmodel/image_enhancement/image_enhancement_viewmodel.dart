@@ -4,6 +4,8 @@ import 'package:image_picker/image_picker.dart';
 class ImageEnhancementViewmodel extends GetxController {
   XFile? selectedImage;
   final ImagePicker imagePicker = ImagePicker();
+  var imageEnhanceWhiteningValue = 0.0.obs;
+  var imageEnhanceDarkeningValue = 0.0.obs;
 
   Future<void> selectImage() async {
     selectedImage = await imagePicker.pickImage(

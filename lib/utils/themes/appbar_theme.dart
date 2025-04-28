@@ -5,10 +5,10 @@ import 'package:google_fonts/google_fonts.dart';
 
 AppBarTheme mainAppBarTheme() {
   return AppBarTheme(
-    backgroundColor: AppColors.brandBgColor,
+    backgroundColor: AppColors.brandColor,
     foregroundColor: AppColors.brandBgColor,
     elevation: 0,
-    toolbarHeight: 40.h,
+    toolbarHeight: 67.h,
     shadowColor: Colors.transparent,
     centerTitle: false,
     titleTextStyle: GoogleFonts.openSans(
