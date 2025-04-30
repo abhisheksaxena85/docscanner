@@ -4,6 +4,7 @@ import 'package:docscanner/utils/app_colors.dart';
 import 'package:docscanner/viewmodel/image_enhancement/image_enhancement_viewmodel.dart';
 import 'package:docscanner/views/widgets/image_view/image_view.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -52,6 +53,7 @@ class _ImageEnhanceEditingScreenState extends State<ImageEnhanceEditingScreen> {
             ),
             onPressed: () {
               // Save action
+              controller.saveImage(context);
             },
           ),
         ],
@@ -93,21 +95,24 @@ class _ImageEnhanceEditingScreenState extends State<ImageEnhanceEditingScreen> {
             },
             child: Hero(
               tag: controller.selectedImage!.path,
-              child: ColorFiltered(
-                colorFilter: ColorFilter.mode(
-                  AppColors.primaryBlackColor
-                      .withOpacity(controller.imageEnhanceDarkeningValue.value),
-                  BlendMode.colorBurn,
-                ),
+              child: RepaintBoundary(
+                key: controller.globalKey,
                 child: ColorFiltered(
                   colorFilter: ColorFilter.mode(
-                    AppColors.whiteBgColor.withOpacity(
-                        controller.imageEnhanceWhiteningValue.value),
-                    BlendMode.overlay,
+                    AppColors.primaryBlackColor.withOpacity(
+                        controller.imageEnhanceDarkeningValue.value),
+                    BlendMode.colorBurn,
                   ),
-                  child: Image.file(
-                    File(controller.selectedImage?.path ?? ''),
-                    fit: BoxFit.fitHeight,
+                  child: ColorFiltered(
+                    colorFilter: ColorFilter.mode(
+                      AppColors.whiteBgColor.withOpacity(
+                          controller.imageEnhanceWhiteningValue.value),
+                      BlendMode.overlay,
+                    ),
+                    child: Image.file(
+                      File(controller.selectedImage?.path ?? ''),
+                      fit: BoxFit.fitHeight,
+                    ),
                   ),
                 ),
               ),
@@ -120,11 +125,11 @@ class _ImageEnhanceEditingScreenState extends State<ImageEnhanceEditingScreen> {
     return Container(
       width: MediaQuery.of(context).size.width,
       padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 5.w),
-      margin: EdgeInsets.symmetric(horizontal: 5.w),
+      margin: EdgeInsets.symmetric(horizontal: 7.w),
       decoration: BoxDecoration(
         color: AppColors.brandColor,
         borderRadius: BorderRadius.all(
-          Radius.circular(2.r),
+          Radius.circular(6.r),
         ),
       ),
       child: Column(
@@ -140,7 +145,7 @@ class _ImageEnhanceEditingScreenState extends State<ImageEnhanceEditingScreen> {
                   width: 15.w,
                 ),
                 Icon(
-                  Icons.brightness_6_outlined,
+                  Icons.brightness_high,
                   color: AppColors.whiteBgColor,
                   size: 25.sp,
                 ),
