@@ -157,7 +157,7 @@ class _ImageEnhanceScreenState extends State<ImageEnhanceScreen> {
       children: [
         InkWell(
           onTap: () {
-            controller.captureImage();
+            controller.captureImage(context);
           },
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -183,7 +183,7 @@ class _ImageEnhanceScreenState extends State<ImageEnhanceScreen> {
         ),
         InkWell(
           onTap: () {
-            controller.selectImage();
+            controller.selectImage(context);
           },
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,

@@ -1,25 +1,100 @@
-import 'dart:developer';
 import 'dart:io';
-import 'dart:ui' as ui;
+
 import 'package:docscanner/utils/app_colors.dart';
+import 'package:docscanner/views/screen/recognition/recognition_result_screen.dart';
 import 'package:docscanner/views/widgets/crop_image_screen.dart';
 import 'package:docscanner/views/widgets/custom_snackbar/custom_snackbar.dart';
-import 'package:docscanner/views/widgets/show_loading_indicator_dialog.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'dart:typed_data';
-import 'package:saver_gallery/saver_gallery.dart';
 
-class ImageEnhancementViewmodel extends GetxController {
+class RecognitionViewmodel extends GetxController {
   XFile? selectedImage;
-  final ImagePicker imagePicker = ImagePicker();
-  var imageEnhanceWhiteningValue = 0.0.obs;
-  var imageEnhanceDarkeningValue = 0.0.obs;
-  var isImageSaving = false.obs;
+  var textRecognizer = TextRecognizer();
+  var isScanning = false.obs;
+  RxString scannedText = ''.obs;
+  final imagePicker = ImagePicker();
+  var isCopied = false.obs;
+
+  Future<void> scanImage(BuildContext context) async {
+    isScanning.value = true;
+    try {
+      final file = File(selectedImage!.path);
+
+      final inputImage = InputImage.fromFile(file);
+      final recognizedText = await textRecognizer.processImage(inputImage);
+      scannedText.value = recognizedText.text;
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) =>
+                  RecognitionResultScreen(file: selectedImage)));
+    } catch (e) {
+      var snackbar = failedSnackBar("Failed to scan image");
+      ScaffoldMessenger.of(context).showSnackBar(snackbar);
+    } finally {
+      isScanning.value = false;
+      update();
+    }
+  }
+
+  void showDeleteDialog(BuildContext context) {
+    showDialog(
+        context: context,
+        builder: (_) {
+          return CupertinoAlertDialog(
+            title: Text(
+              'Reset Image',
+              style: GoogleFonts.openSans(
+                  fontSize: 20.sp,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.primaryBlackColor),
+            ),
+            content: Text(
+              'Are you sure you want to reset the image?',
+              textAlign: TextAlign.start,
+              style: GoogleFonts.openSans(
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.w400,
+                  color: AppColors.secondaryBlackColor),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text(
+                  'Cancel',
+                  style: GoogleFonts.openSans(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.brandColor),
+                ),
+              ),
+              TextButton(
+                onPressed: () {
+                  selectedImage = null;
+                  update();
+                  Navigator.pop(context);
+                },
+                child: Text(
+                  'Reset',
+                  style: GoogleFonts.openSans(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.brandColor),
+                ),
+              ),
+            ],
+          );
+        });
+  }
 
   Future<void> selectImage(BuildContext context) async {
     selectedImage = await imagePicker.pickImage(
@@ -87,6 +162,7 @@ class ImageEnhancementViewmodel extends GetxController {
       compressQuality: 100,
       uiSettings: [
         AndroidUiSettings(
+          cropStyle: CropStyle.rectangle,
           toolbarTitle: 'Crop',
           toolbarColor: AppColors.brandColor,
           toolbarWidgetColor: Colors.white,
@@ -125,56 +201,15 @@ class ImageEnhancementViewmodel extends GetxController {
     update();
   }
 
-  GlobalKey globalKey = GlobalKey();
-
-  Future<void> saveImage(BuildContext context) async {
-    isImageSaving.value = true;
-    showLoadingIndicator(context);
-    try {
-      var status = await Permission.storage.request();
-      if (!status.isGranted) return;
-
-      RenderRepaintBoundary boundary =
-          globalKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
-      ui.Image image = await boundary.toImage(
-          pixelRatio: 3.0); // Higher pixelRatio = better quality
-      ByteData? byteData =
-          await image.toByteData(format: ui.ImageByteFormat.png);
-      Uint8List pngBytes = byteData!.buffer.asUint8List();
-
-      final fileName =
-          'Enhanced Image ${DateTime.now().millisecondsSinceEpoch}.png';
-      const androidRelativePath = "Pictures/DocScanner";
-      final filePath = Platform.isAndroid
-          ? "/storage/emulated/0/$androidRelativePath/$fileName"
-          : "/path/to/ios/directory/$fileName";
-
-      final result = await SaverGallery.saveImage(
-        pngBytes,
-        quality: 60,
-        fileName: fileName,
-        androidRelativePath: androidRelativePath,
-        skipIfExists: false,
-      );
-
-      if (result.isSuccess == true) {
-        final snackbar = successSnackBar("Image saved to gallery successfully");
-        log('Image saved to gallery successfully');
-        ScaffoldMessenger.of(context).showSnackBar(snackbar);
-      } else {
-        final snackbar = failedSnackBar("Failed to save image");
-        ScaffoldMessenger.of(context).showSnackBar(snackbar);
-        log('Failed to save image: ${result.errorMessage}');
-      }
-      log('Image saved at: ${filePath}');
-    } catch (e) {
-      log('Error saving image: $e');
-      final snackbar = failedSnackBar("Failed to save image");
+  void copyTextToClipboard(BuildContext context) {
+    if (scannedText.value.isNotEmpty) {
+      Clipboard.setData(ClipboardData(text: scannedText.value));
+      var snackbar = successSnackBar("Copied to clipboard");
       ScaffoldMessenger.of(context).showSnackBar(snackbar);
-    } finally {
-      Navigator.of(context).pop();
-      isImageSaving.value = false;
-      update();
+      isCopied.value = true;
+      Future.delayed(const Duration(seconds: 5), () {
+        isCopied.value = false;
+      });
     }
   }
 }

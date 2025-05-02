@@ -8,6 +8,7 @@ class AppColors {
   static const Color primaryBlackColor = Color(0xFF000000);
   static const Color secondaryBlackColor = Color(0xFF424242);
   static const Color teritiaryBlackColor = Color(0xFF757575);
+  static const Color lightGray = Color(0xFFF8F8F8);
 
   /// Contextual Colors
   static const Color errorColor = Color(0xFFC4314B);

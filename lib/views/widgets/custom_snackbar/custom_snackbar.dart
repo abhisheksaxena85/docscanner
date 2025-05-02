@@ -29,6 +29,7 @@ SnackBar failedSnackBar(String message) {
     duration: const Duration(seconds: 4),
     backgroundColor: AppColors.redBg,
     showCloseIcon: true,
+    closeIconColor: AppColors.secondaryBlackColor,
   );
 }
 
@@ -58,6 +59,7 @@ SnackBar successSnackBar(String message) {
     duration: const Duration(seconds: 4),
     backgroundColor: AppColors.greenBg,
     showCloseIcon: true,
+    closeIconColor: AppColors.secondaryBlackColor,
   );
 }
 
@@ -87,5 +89,6 @@ SnackBar waitingSnackbar(String message) {
     duration: const Duration(seconds: 4),
     backgroundColor: AppColors.yellowBg,
     showCloseIcon: true,
+    closeIconColor: AppColors.secondaryBlackColor,
   );
 }

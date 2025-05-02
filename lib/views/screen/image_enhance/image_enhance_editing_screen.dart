@@ -25,6 +25,7 @@ class _ImageEnhanceEditingScreenState extends State<ImageEnhanceEditingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.whiteBgColor,
       appBar: AppBar(
         title: Text(
           'Image Enhance Editing',
@@ -58,14 +59,16 @@ class _ImageEnhanceEditingScreenState extends State<ImageEnhanceEditingScreen> {
           ),
         ],
       ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          _buildImageContainer(context),
-          SizedBox(height: 20.h),
-          _buildImageEnhanceButton(controller),
-        ],
+      body: SingleChildScrollView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            _buildImageContainer(context),
+            SizedBox(height: 20.h),
+            _buildImageEnhanceButton(controller),
+          ],
+        ),
       ),
     );
   }
@@ -127,7 +130,6 @@ class _ImageEnhanceEditingScreenState extends State<ImageEnhanceEditingScreen> {
       padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 5.w),
       margin: EdgeInsets.symmetric(horizontal: 7.w),
       decoration: BoxDecoration(
-        color: AppColors.brandColor,
         borderRadius: BorderRadius.all(
           Radius.circular(6.r),
         ),
@@ -146,13 +148,13 @@ class _ImageEnhanceEditingScreenState extends State<ImageEnhanceEditingScreen> {
                 ),
                 Icon(
                   Icons.brightness_high,
-                  color: AppColors.whiteBgColor,
+                  color: AppColors.brandColor,
                   size: 25.sp,
                 ),
                 Expanded(
                   child: Slider(
-                    activeColor: AppColors.whiteBgColor,
-                    inactiveColor: AppColors.teritiaryBlackColor,
+                    activeColor: AppColors.brandColor,
+                    inactiveColor: AppColors.brandBgColor,
                     value: controller.imageEnhanceWhiteningValue.value,
                     min: 0,
                     max: 1,
@@ -175,14 +177,15 @@ class _ImageEnhanceEditingScreenState extends State<ImageEnhanceEditingScreen> {
                   width: 15.w,
                 ),
                 Icon(
-                  Icons.brightness_4_outlined,
-                  color: AppColors.whiteBgColor,
+                  Icons.brightness_5,
+                  color: AppColors.brightSkyBlueColor.withBlue(235),
                   size: 25.sp,
                 ),
                 Expanded(
                   child: Slider(
-                    activeColor: AppColors.whiteBgColor,
-                    inactiveColor: AppColors.teritiaryBlackColor,
+                    activeColor: AppColors.brightSkyBlueColor,
+                    inactiveColor:
+                        AppColors.brightSkyBlueColor.withOpacity(0.3),
                     value: controller.imageEnhanceDarkeningValue.value,
                     min: 0,
                     max: 1,
