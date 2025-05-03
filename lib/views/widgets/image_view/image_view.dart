@@ -1,12 +1,16 @@
 import 'dart:io';
 
+import 'package:docscanner/utils/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
 
 class ImageView extends StatefulWidget {
   final XFile? image;
-  const ImageView({super.key, required this.image});
+  final double? brightness;
+  final double? contrast;
+  const ImageView(
+      {super.key, required this.image, this.brightness, this.contrast});
 
   @override
   State<ImageView> createState() => _ImageViewState();
@@ -38,11 +42,23 @@ class _ImageViewState extends State<ImageView> {
           child: InteractiveViewer(
             boundaryMargin: EdgeInsets.all(5.r),
             alignment: Alignment.center,
-            child: Image.file(
-              File(widget.image!.path),
-              fit: BoxFit.contain,
-              width: double.infinity,
-              height: double.infinity,
+            child: ColorFiltered(
+              colorFilter: ColorFilter.mode(
+                AppColors.primaryBlackColor.withOpacity(widget.contrast ?? 0.0),
+                BlendMode.colorBurn,
+              ),
+              child: ColorFiltered(
+                colorFilter: ColorFilter.mode(
+                  AppColors.whiteBgColor.withOpacity(widget.brightness ?? 0.0),
+                  BlendMode.overlay,
+                ),
+                child: Image.file(
+                  File(widget.image!.path),
+                  fit: BoxFit.contain,
+                  width: double.infinity,
+                  height: double.infinity,
+                ),
+              ),
             ),
           ),
         ),

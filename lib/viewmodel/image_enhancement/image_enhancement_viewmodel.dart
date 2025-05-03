@@ -24,7 +24,7 @@ class ImageEnhancementViewmodel extends GetxController {
   Future<void> selectImage(BuildContext context) async {
     selectedImage = await imagePicker.pickImage(
       source: ImageSource.gallery,
-      imageQuality: 50,
+      imageQuality: 100,
     );
     if (selectedImage == null) {
       return;
@@ -76,7 +76,7 @@ class ImageEnhancementViewmodel extends GetxController {
   Future<void> captureImage(BuildContext context) async {
     selectedImage = await imagePicker.pickImage(
       source: ImageSource.camera,
-      imageQuality: 50,
+      imageQuality: 100,
     );
     if (selectedImage == null) {
       return;

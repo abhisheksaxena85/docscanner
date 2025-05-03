@@ -88,7 +88,7 @@ class _ImageEnhanceScreenState extends State<ImageEnhanceScreen> {
                     showAlertDialog();
                   },
                   child: Hero(
-                    tag: controller.selectedImage!.path,
+                    tag: controller.selectedImage?.path ?? '',
                     child: Image.file(
                       File(controller.selectedImage?.path ?? ''),
                       fit: BoxFit.fitHeight,

@@ -26,7 +26,7 @@ class _RecognitionResultScreenState extends State<RecognitionResultScreen> {
       backgroundColor: AppColors.lightGray,
       appBar: AppBar(
         title: Text(
-          'Image Enhance Editing',
+          'Text Scan Result',
           style: GoogleFonts.openSans(
               color: AppColors.whiteBgColor, fontSize: 18.sp),
         ),
@@ -80,9 +80,12 @@ class _RecognitionResultScreenState extends State<RecognitionResultScreen> {
                             image: controller.selectedImage,
                           )));
             },
-            child: Image.file(
-              File(controller.selectedImage?.path ?? ''),
-              fit: BoxFit.fitHeight,
+            child: Hero(
+              tag: widget.file?.path ?? '',
+              child: Image.file(
+                File(controller.selectedImage?.path ?? ''),
+                fit: BoxFit.fitHeight,
+              ),
             ),
           ));
     });

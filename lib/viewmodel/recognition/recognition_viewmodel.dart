@@ -99,7 +99,7 @@ class RecognitionViewmodel extends GetxController {
   Future<void> selectImage(BuildContext context) async {
     selectedImage = await imagePicker.pickImage(
       source: ImageSource.gallery,
-      imageQuality: 50,
+      imageQuality: 100,
     );
     if (selectedImage == null) {
       return;
@@ -151,13 +151,13 @@ class RecognitionViewmodel extends GetxController {
   Future<void> captureImage(BuildContext context) async {
     selectedImage = await imagePicker.pickImage(
       source: ImageSource.camera,
-      imageQuality: 50,
+      imageQuality: 100,
     );
     if (selectedImage == null) {
       return;
     }
     final cropped = await ImageCropper().cropImage(
-      sourcePath: selectedImage!.path,
+      sourcePath: selectedImage?.path ?? '',
       compressFormat: ImageCompressFormat.jpg,
       compressQuality: 100,
       uiSettings: [

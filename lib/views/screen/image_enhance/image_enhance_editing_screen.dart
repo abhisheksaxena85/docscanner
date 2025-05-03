@@ -22,6 +22,14 @@ class ImageEnhanceEditingScreen extends StatefulWidget {
 class _ImageEnhanceEditingScreenState extends State<ImageEnhanceEditingScreen> {
   final ImageEnhancementViewmodel controller =
       Get.put(ImageEnhancementViewmodel());
+
+  @override
+  void initState() {
+    controller.imageEnhanceWhiteningValue.value = 0.0;
+    controller.imageEnhanceDarkeningValue.value = 0.0;
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -94,10 +102,14 @@ class _ImageEnhanceEditingScreenState extends State<ImageEnhanceEditingScreen> {
                   MaterialPageRoute(
                       builder: (context) => ImageView(
                             image: controller.selectedImage,
+                            brightness:
+                                controller.imageEnhanceWhiteningValue.value,
+                            contrast:
+                                controller.imageEnhanceDarkeningValue.value,
                           )));
             },
             child: Hero(
-              tag: controller.selectedImage!.path,
+              tag: controller.selectedImage?.path ?? '',
               child: RepaintBoundary(
                 key: controller.globalKey,
                 child: ColorFiltered(
