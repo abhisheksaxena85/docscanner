@@ -1,13 +1,19 @@
+// ignore_for_file: deprecated_member_use, use_build_context_synchronously
+
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:docscanner/utils/app_colors.dart';
 import 'package:docscanner/views/screen/scanner/scanner_result_screen.dart';
 import 'package:docscanner/views/widgets/crop_image_screen.dart';
+import 'package:docscanner/views/widgets/custom_snackbar/custom_snackbar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:google_mlkit_barcode_scanning/src/barcode_scanner.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
@@ -19,6 +25,7 @@ class ScannerViewmodel extends GetxController {
   final ImagePicker imagePicker = ImagePicker();
   var isScanning = false.obs;
   var isCopied = false.obs;
+  RxString qrScanResult = ''.obs;
   List<EntityAnnotation> annotations = [];
 
   void selectImage(BuildContext context) async {
@@ -202,18 +209,56 @@ class ScannerViewmodel extends GetxController {
       annotations = await extractor.annotateText(rawText);
 
       if (annotations.isNotEmpty) {
+        var snackbar = successSnackBar(
+            "Successfully extracted ${annotations.length} entities from the image.");
+        ScaffoldMessenger.of(context).showSnackBar(snackbar);
         Navigator.push(
             context,
             MaterialPageRoute(
                 builder: (context) =>
                     ScannerResultScreen(file: selectedImage)));
+      } else {
+        qrScanResult.value = await qrScan(File(selectedImage?.path ?? '').path);
+        if (qrScanResult.value != '') {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => ScannerResultScreen(
+                        file: selectedImage,
+                      )));
+        } else {
+          var snackbar = failedSnackBar(
+              "Not able to extract any entities from the image.");
+          ScaffoldMessenger.of(context).showSnackBar(snackbar);
+        }
       }
 
       await extractor.close();
     } catch (e) {
+      log("Error : $e");
       isScanning.value = false;
     } finally {
       isScanning.value = false;
+    }
+  }
+
+  Future<String> qrScan(String path) async {
+    try {
+      final inputImage = InputImage.fromFilePath(path);
+
+      final scanner = BarcodeScanner(formats: [BarcodeFormat.qrCode]);
+
+      // 3. Process the image
+      final List<Barcode> barcodes = await scanner.processImage(inputImage);
+      await scanner.close();
+      // 4. Extract the first QR value (if any)
+      String result = barcodes.isNotEmpty
+          ? barcodes.first.rawValue ?? 'No data'
+          : 'No QR code found';
+      return result;
+    } catch (e) {
+      log("Error while scanning QR code: $e");
+      return '';
     }
   }
 
@@ -223,7 +268,7 @@ class ScannerViewmodel extends GetxController {
     } else if (type == EntityType.email) {
       await launchEmail(text, "Subject", "Message...");
     } else if (type == EntityType.url) {
-      await launchUrl(text);
+      await launchUrlLink(text);
     } else if (type == EntityType.address) {
       await openMapOldApi(text);
     } else {
@@ -237,7 +282,7 @@ class ScannerViewmodel extends GetxController {
       if (!await canLaunchUrl(telUri)) {
         throw 'Could not dial $phoneNumber';
       }
-      await launchUrl(phoneNumber);
+      await launchUrl(telUri);
     } catch (e) {
       log("Error while dialing phone $e");
     }
@@ -261,19 +306,21 @@ class ScannerViewmodel extends GetxController {
       if (!await canLaunchUrl(emailUri)) {
         throw 'Could not launch email to $toEmail';
       }
-      await launchUrl(toEmail);
+      await launchUrl(emailUri);
     } catch (e) {
       log("Error while launching email $e");
     }
   }
 
-  Future<void> launchUrl(String url) async {
+  Future<void> launchUrlLink(String url) async {
     try {
       final uri = Uri.parse(url);
-      if (!await canLaunchUrl(uri)) {
-        throw 'Could not launch $url';
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(
+          uri,
+          mode: LaunchMode.inAppBrowserView,
+        );
       }
-      await launchUrl(url);
     } catch (e) {
       log("Error while launching url $e");
     }
@@ -290,6 +337,18 @@ class ScannerViewmodel extends GetxController {
       await launch(url);
     } catch (e) {
       log("Error while opening map $e");
+    }
+  }
+
+  void copyTextToClipboard(BuildContext context) {
+    if (qrScanResult.value != '') {
+      Clipboard.setData(ClipboardData(text: qrScanResult.value));
+      var snackbar = successSnackBar("Copied to clipboard");
+      ScaffoldMessenger.of(context).showSnackBar(snackbar);
+      isCopied.value = true;
+      Future.delayed(const Duration(seconds: 5), () {
+        isCopied.value = false;
+      });
     }
   }
 }

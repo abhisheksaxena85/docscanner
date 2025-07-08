@@ -43,58 +43,129 @@ class _ImageEnhanceScreenState extends State<ImageEnhanceScreen> {
   Widget _buildImageContainer(BuildContext context) {
     var height = MediaQuery.of(context).size.height;
     return GetBuilder<ImageEnhancementViewmodel>(builder: (controller) {
-      return Container(
-          width: double.infinity,
-          height: height * 0.7,
-          margin: EdgeInsets.symmetric(horizontal: 12.w),
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            border: Border.all(
-              color: AppColors.teritiaryBlackColor.withOpacity(0.5),
-              width: 0.6,
+      return Column(
+        children: [
+          Container(
+            margin: EdgeInsets.symmetric(horizontal: 14.w),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      '*',
+                      style: GoogleFonts.openSans(
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w400,
+                          fontStyle: FontStyle.italic,
+                          color: AppColors.errorColor),
+                    ),
+                    SizedBox(
+                      width: 2.w,
+                    ),
+                    Text(
+                      'Enhance the selected image\'s color',
+                      style: GoogleFonts.openSans(
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w500,
+                          fontStyle: FontStyle.italic,
+                          color: AppColors.primaryBlackColor.withOpacity(0.7)),
+                    ),
+                  ],
+                ),
+                controller.selectedImage == null
+                    ? const SizedBox()
+                    : InkWell(
+                        onTap: () {
+                          controller.showDeleteDialog(context);
+                        },
+                        child: Padding(
+                          padding: EdgeInsets.all(3.r),
+                          child: Icon(
+                            Icons.refresh,
+                            color: AppColors.primaryBlackColor,
+                            size: 22.sp,
+                          ),
+                        ),
+                      )
+              ],
             ),
-            color: controller.selectedImage == null
-                ? Colors.transparent
-                : AppColors.primaryBlackColor,
-            borderRadius: BorderRadius.circular(10.r),
           ),
-          child: controller.selectedImage == null
-              ? Container(
-                  padding: EdgeInsets.all(20.r),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(26.r),
-                    border: Border.all(
-                      color: AppColors.brandColor,
-                      width: 1,
-                    ),
-                  ),
-                  child: SvgPicture.asset(
-                    AppImages.imagePlaceholderIcon,
-                    height: 120.h,
-                    width: 120.w,
-                    color: AppColors.brandColor.withOpacity(1),
-                  ),
-                )
-              : InkWell(
-                  onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => ImageView(
-                                  image: controller.selectedImage,
-                                )));
-                  },
-                  onLongPress: () {
-                    showAlertDialog();
-                  },
-                  child: Hero(
-                    tag: controller.selectedImage?.path ?? '',
-                    child: Image.file(
-                      File(controller.selectedImage?.path ?? ''),
-                      fit: BoxFit.fitHeight,
-                    ),
-                  ),
-                ));
+          SizedBox(
+            height: 8.h,
+          ),
+          Container(
+              width: double.infinity,
+              height: height * 0.7,
+              margin: EdgeInsets.symmetric(horizontal: 12.w),
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: AppColors.teritiaryBlackColor.withOpacity(0.5),
+                  width: 0.6,
+                ),
+                color: controller.selectedImage == null
+                    ? Colors.white
+                    : AppColors.primaryBlackColor,
+                borderRadius: BorderRadius.circular(10.r),
+              ),
+              child: controller.selectedImage == null
+                  ? Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Container(
+                          padding: EdgeInsets.all(10.r),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20.r),
+                            border: Border.all(
+                              color: AppColors.secondaryBlackColor,
+                              width: 1,
+                            ),
+                          ),
+                          child: SvgPicture.asset(
+                            AppImages.imagePlaceholderIcon,
+                            height: 120.h,
+                            width: 120.w,
+                            color:
+                                AppColors.secondaryBlackColor.withOpacity(0.7),
+                          ),
+                        ),
+                        SizedBox(
+                          height: 10.h,
+                        ),
+                        Text(
+                          'Select Image for color enhancement!',
+                          style: GoogleFonts.openSans(
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.w400,
+                              color: AppColors.secondaryBlackColor),
+                        ),
+                      ],
+                    )
+                  : InkWell(
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => ImageView(
+                                      image: controller.selectedImage,
+                                    )));
+                      },
+                      onLongPress: () {
+                        showAlertDialog();
+                      },
+                      child: Hero(
+                        tag: controller.selectedImage?.path ?? '',
+                        child: Image.file(
+                          File(controller.selectedImage?.path ?? ''),
+                          fit: BoxFit.fitHeight,
+                        ),
+                      ),
+                    )),
+        ],
+      );
     });
   }
 

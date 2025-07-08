@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'dart:io';
 
 import 'package:docscanner/utils/app_colors.dart';
@@ -25,15 +27,14 @@ class _ImageEnhanceEditingScreenState extends State<ImageEnhanceEditingScreen> {
 
   @override
   void initState() {
-    controller.imageEnhanceWhiteningValue.value = 0.0;
-    controller.imageEnhanceDarkeningValue.value = 0.0;
+    controller.imageEnhanceWhiteningValue.value = 0.01;
+    controller.imageEnhanceDarkeningValue.value = 0.01;
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.whiteBgColor,
       appBar: AppBar(
         title: Text(
           'Image Enhance Editing',
@@ -67,7 +68,8 @@ class _ImageEnhanceEditingScreenState extends State<ImageEnhanceEditingScreen> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
+      body: Container(
+        color: AppColors.whiteBgColor,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -86,7 +88,7 @@ class _ImageEnhanceEditingScreenState extends State<ImageEnhanceEditingScreen> {
     return GetBuilder<ImageEnhancementViewmodel>(builder: (controller) {
       return Container(
           width: double.infinity,
-          height: height * 0.65,
+          height: height * 0.6,
           alignment: Alignment.center,
           decoration: BoxDecoration(
             border: Border.all(
@@ -116,7 +118,7 @@ class _ImageEnhanceEditingScreenState extends State<ImageEnhanceEditingScreen> {
                   colorFilter: ColorFilter.mode(
                     AppColors.primaryBlackColor.withOpacity(
                         controller.imageEnhanceDarkeningValue.value),
-                    BlendMode.colorBurn,
+                    BlendMode.overlay,
                   ),
                   child: ColorFiltered(
                     colorFilter: ColorFilter.mode(
@@ -126,7 +128,6 @@ class _ImageEnhanceEditingScreenState extends State<ImageEnhanceEditingScreen> {
                     ),
                     child: Image.file(
                       File(controller.selectedImage?.path ?? ''),
-                      fit: BoxFit.fitHeight,
                     ),
                   ),
                 ),
@@ -142,14 +143,26 @@ class _ImageEnhanceEditingScreenState extends State<ImageEnhanceEditingScreen> {
       padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 5.w),
       margin: EdgeInsets.symmetric(horizontal: 7.w),
       decoration: BoxDecoration(
+        color: AppColors.whiteBgColor,
         borderRadius: BorderRadius.all(
           Radius.circular(6.r),
         ),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Container(
+            margin: EdgeInsets.only(left: 15.w),
+            child: Text(
+              "Brightness",
+              style: GoogleFonts.roboto(
+                color: AppColors.brandColor,
+                fontSize: 17.sp,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
           Obx(() {
             return Row(
               mainAxisAlignment: MainAxisAlignment.start,
@@ -172,6 +185,9 @@ class _ImageEnhanceEditingScreenState extends State<ImageEnhanceEditingScreen> {
                     max: 1,
                     divisions: 100,
                     onChanged: (value) {
+                      if (value == 0) {
+                        return;
+                      }
                       controller.imageEnhanceWhiteningValue.value = value;
                       controller.update();
                     },
@@ -189,20 +205,23 @@ class _ImageEnhanceEditingScreenState extends State<ImageEnhanceEditingScreen> {
                   width: 15.w,
                 ),
                 Icon(
-                  Icons.brightness_5,
-                  color: AppColors.brightSkyBlueColor.withBlue(235),
+                  Icons.contrast,
+                  color: AppColors.secondaryBlackColor,
                   size: 25.sp,
                 ),
                 Expanded(
                   child: Slider(
-                    activeColor: AppColors.brightSkyBlueColor,
+                    activeColor: AppColors.secondaryBlackColor,
                     inactiveColor:
-                        AppColors.brightSkyBlueColor.withOpacity(0.3),
+                        AppColors.secondaryBlackColor.withOpacity(0.3),
                     value: controller.imageEnhanceDarkeningValue.value,
                     min: 0,
                     max: 1,
                     divisions: 100,
                     onChanged: (value) {
+                      if (value == 0) {
+                        return;
+                      }
                       controller.imageEnhanceDarkeningValue.value = value;
                       controller.update();
                     },

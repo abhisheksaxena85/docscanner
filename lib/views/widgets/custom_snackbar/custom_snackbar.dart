@@ -17,6 +17,7 @@ SnackBar failedSnackBar(String message) {
         Expanded(
           child: Text(
             message,
+            maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: GoogleFonts.roboto(
                 color: AppColors.errorColor,
@@ -47,6 +48,7 @@ SnackBar successSnackBar(String message) {
         Expanded(
           child: Text(
             message,
+            maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: GoogleFonts.roboto(
                 color: AppColors.successColor,
@@ -77,6 +79,7 @@ SnackBar waitingSnackbar(String message) {
         Expanded(
           child: Text(
             message,
+            maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: GoogleFonts.roboto(
                 color: AppColors.contextualYellow,

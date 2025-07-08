@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "com.abhisheksaxena.docscanner"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 36
     ndkVersion = flutter.ndkVersion
 
     compileOptions {

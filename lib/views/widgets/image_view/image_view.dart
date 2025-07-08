@@ -45,7 +45,7 @@ class _ImageViewState extends State<ImageView> {
             child: ColorFiltered(
               colorFilter: ColorFilter.mode(
                 AppColors.primaryBlackColor.withOpacity(widget.contrast ?? 0.0),
-                BlendMode.colorBurn,
+                BlendMode.overlay,
               ),
               child: ColorFiltered(
                 colorFilter: ColorFilter.mode(

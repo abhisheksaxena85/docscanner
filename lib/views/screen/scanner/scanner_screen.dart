@@ -1,7 +1,10 @@
+// ignore_for_file: deprecated_member_use
+
 import 'dart:io';
 
 import 'package:docscanner/utils/app_colors.dart';
 import 'package:docscanner/utils/app_images.dart';
+import 'package:docscanner/viewmodel/recognition/recognition_viewmodel.dart';
 import 'package:docscanner/viewmodel/scanner/scanner_viewmodel.dart';
 import 'package:docscanner/views/widgets/image_view/image_view.dart';
 import 'package:flutter/material.dart';
@@ -19,6 +22,8 @@ class ScannerScreen extends StatefulWidget {
 
 class _ScannerScreenState extends State<ScannerScreen> {
   final ScannerViewmodel controller = Get.put(ScannerViewmodel());
+  final RecognitionViewmodel recognitionViewmodel =
+      Get.put(RecognitionViewmodel());
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -29,7 +34,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           _buildImageContainer(context),
-          _buildSelectButton(),
+          _buildSelectButton(context),
         ],
       ),
     );
@@ -38,62 +43,133 @@ class _ScannerScreenState extends State<ScannerScreen> {
   Widget _buildImageContainer(BuildContext context) {
     var height = MediaQuery.of(context).size.height;
     return GetBuilder<ScannerViewmodel>(builder: (controller) {
-      return Container(
-          width: double.infinity,
-          height: height * 0.7,
-          margin: EdgeInsets.symmetric(horizontal: 12.w),
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            border: Border.all(
-              color: AppColors.teritiaryBlackColor.withOpacity(0.5),
-              width: 0.6,
+      return Column(
+        children: [
+          Container(
+            margin: EdgeInsets.symmetric(horizontal: 14.w),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      '*',
+                      style: GoogleFonts.openSans(
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w400,
+                          fontStyle: FontStyle.italic,
+                          color: AppColors.errorColor),
+                    ),
+                    SizedBox(
+                      width: 2.w,
+                    ),
+                    Text(
+                      'Scan the entities out of document.',
+                      style: GoogleFonts.openSans(
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w500,
+                          fontStyle: FontStyle.italic,
+                          color: AppColors.primaryBlackColor.withOpacity(0.7)),
+                    ),
+                  ],
+                ),
+                controller.selectedImage == null
+                    ? const SizedBox()
+                    : InkWell(
+                        onTap: () {
+                          controller.showDeleteDialog(context);
+                        },
+                        child: Padding(
+                          padding: EdgeInsets.all(3.r),
+                          child: Icon(
+                            Icons.refresh,
+                            color: AppColors.primaryBlackColor,
+                            size: 22.sp,
+                          ),
+                        ),
+                      )
+              ],
             ),
-            color: controller.selectedImage == null
-                ? Colors.transparent
-                : AppColors.primaryBlackColor,
-            borderRadius: BorderRadius.circular(10.r),
           ),
-          child: controller.selectedImage == null
-              ? Container(
-                  padding: EdgeInsets.all(20.r),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(26.r),
-                    border: Border.all(
-                      color: AppColors.brandColor,
-                      width: 1,
-                    ),
-                  ),
-                  child: SvgPicture.asset(
-                    AppImages.imagePlaceholderIcon,
-                    height: 120.h,
-                    width: 120.w,
-                    color: AppColors.brandColor.withOpacity(1),
-                  ),
-                )
-              : InkWell(
-                  onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => ImageView(
-                                  image: controller.selectedImage,
-                                )));
-                  },
-                  onLongPress: () {
-                    controller.showDeleteDialog(context);
-                  },
-                  child: Hero(
-                    tag: controller.selectedImage?.path ?? '',
-                    child: Image.file(
-                      File(controller.selectedImage?.path ?? ''),
-                      fit: BoxFit.fitHeight,
-                    ),
-                  ),
-                ));
+          SizedBox(
+            height: 8.h,
+          ),
+          Container(
+              width: double.infinity,
+              height: height * 0.7,
+              margin: EdgeInsets.symmetric(horizontal: 12.w),
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: AppColors.teritiaryBlackColor.withOpacity(0.5),
+                  width: 0.6,
+                ),
+                color: controller.selectedImage == null
+                    ? Colors.white
+                    : AppColors.primaryBlackColor,
+                borderRadius: BorderRadius.circular(10.r),
+              ),
+              child: controller.selectedImage == null
+                  ? Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Container(
+                          padding: EdgeInsets.all(10.r),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20.r),
+                            border: Border.all(
+                              color: AppColors.secondaryBlackColor,
+                              width: 1,
+                            ),
+                          ),
+                          child: SvgPicture.asset(
+                            AppImages.imagePlaceholderIcon,
+                            height: 120.h,
+                            width: 120.w,
+                            color:
+                                AppColors.secondaryBlackColor.withOpacity(0.7),
+                          ),
+                        ),
+                        SizedBox(
+                          height: 10.h,
+                        ),
+                        Text(
+                          'Select Image for entity extraction.',
+                          style: GoogleFonts.openSans(
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.w400,
+                              color: AppColors.secondaryBlackColor),
+                        ),
+                      ],
+                    )
+                  : InkWell(
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => ImageView(
+                                      image: controller.selectedImage,
+                                    )));
+                      },
+                      onLongPress: () {
+                        controller.showDeleteDialog(context);
+                      },
+                      child: Hero(
+                        tag: controller.selectedImage?.path ?? '',
+                        child: Image.file(
+                          File(controller.selectedImage?.path ?? ''),
+                          fit: BoxFit.fitHeight,
+                        ),
+                      ),
+                    )),
+        ],
+      );
     });
   }
 
-  Widget _buildSelectButton() {
+  Widget _buildSelectButton(BuildContext context) {
     return GetBuilder<ScannerViewmodel>(builder: (controller) {
       return Container(
         width: MediaQuery.of(context).size.width,
@@ -107,12 +183,13 @@ class _ScannerScreenState extends State<ScannerScreen> {
         ),
         child: controller.selectedImage == null
             ? _buildCaptureSelectButton(controller)
-            : _buildScanImageButton(controller),
+            : _buildScanImageButton(controller, context),
       );
     });
   }
 
-  Widget _buildScanImageButton(ScannerViewmodel controller) {
+  Widget _buildScanImageButton(
+      ScannerViewmodel controller, BuildContext context) {
     return InkWell(
       onTap: () async {
         await controller.scan(context);

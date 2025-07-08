@@ -97,19 +97,117 @@ class _ScannerResultScreenState extends State<ScannerResultScreen> {
       return Container(
         padding: EdgeInsets.symmetric(horizontal: 12.w),
         margin: EdgeInsets.only(bottom: 25.h),
-        child: ListView.builder(
-          shrinkWrap: true,
-          primary: false,
-          itemCount: controller.annotations.length,
-          itemBuilder: (context, index) {
-            return _buildEntityItem(
-              controller.annotations[index],
-              controller,
-            );
-          },
-        ),
+        child: controller.annotations.isEmpty
+            ? _buildSelectableTextArea(context, controller)
+            : ListView.builder(
+                shrinkWrap: true,
+                primary: false,
+                itemCount: controller.annotations.length,
+                itemBuilder: (context, index) {
+                  return _buildEntityItem(
+                    controller.annotations[index],
+                    controller,
+                  );
+                },
+              ),
       );
     });
+  }
+
+  Widget _buildSelectableTextArea(
+      BuildContext context, ScannerViewmodel controller) {
+    return Container(
+      decoration: BoxDecoration(
+          color: AppColors.whiteBgColor,
+          borderRadius: BorderRadius.circular(10.r),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.teritiaryBlackColor.withOpacity(0.2),
+              blurRadius: 5,
+              spreadRadius: 1,
+              offset: const Offset(0, 3),
+            ),
+          ]),
+      padding: EdgeInsets.symmetric(horizontal: 25.w, vertical: 20.h),
+      margin: EdgeInsets.symmetric(horizontal: 15.w, vertical: 20),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          /// Header row of selectable text area
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                'Scanned Text',
+                textAlign: TextAlign.start,
+                style: GoogleFonts.openSans(
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.primaryBlackColor,
+                    fontSize: 18.sp),
+              ),
+              Obx(() {
+                return InkWell(
+                  onTap: () {
+                    controller.copyTextToClipboard(context);
+                  },
+                  child: Container(
+                    padding:
+                        EdgeInsets.symmetric(vertical: 3.h, horizontal: 5.w),
+                    child: Row(
+                      children: [
+                        Icon(
+                          controller.isCopied.value == true
+                              ? Icons.check
+                              : Icons.copy_rounded,
+                          color: AppColors.primaryBlackColor,
+                          size: 16.sp,
+                        ),
+                        SizedBox(width: 3.w),
+                        Text(
+                          controller.isCopied.value == true ? 'Copied' : 'Copy',
+                          style: GoogleFonts.openSans(
+                              fontWeight: FontWeight.w400,
+                              color: AppColors.primaryBlackColor,
+                              fontSize: 12.sp),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              })
+            ],
+          ),
+          Divider(
+            color: AppColors.teritiaryBlackColor.withOpacity(0.5),
+            thickness: 0.6,
+          ),
+
+          SizedBox(height: 10.h),
+
+          /// Selectable Text Area
+          controller.qrScanResult.value.isEmpty
+              ? Center(
+                  child: Text(
+                    'No data found in scanned image!',
+                    style: GoogleFonts.openSans(
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w400,
+                        color: AppColors.secondaryBlackColor),
+                  ),
+                )
+              : SelectableText(controller.qrScanResult.value,
+                  textAlign: TextAlign.start,
+                  toolbarOptions: const ToolbarOptions(
+                      copy: true, selectAll: true, cut: false, paste: false),
+                  style: GoogleFonts.openSans(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w400,
+                      color: AppColors.secondaryBlackColor)),
+        ],
+      ),
+    );
   }
 
   Widget _buildEntityItem(

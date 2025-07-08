@@ -5,9 +5,12 @@ import 'package:docscanner/utils/app_colors.dart';
 import 'package:docscanner/views/widgets/crop_image_screen.dart';
 import 'package:docscanner/views/widgets/custom_snackbar/custom_snackbar.dart';
 import 'package:docscanner/views/widgets/show_loading_indicator_dialog.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -17,8 +20,8 @@ import 'package:saver_gallery/saver_gallery.dart';
 class ImageEnhancementViewmodel extends GetxController {
   XFile? selectedImage;
   final ImagePicker imagePicker = ImagePicker();
-  var imageEnhanceWhiteningValue = 0.0.obs;
-  var imageEnhanceDarkeningValue = 0.0.obs;
+  var imageEnhanceWhiteningValue = 0.01.obs;
+  var imageEnhanceDarkeningValue = 0.01.obs;
   var isImageSaving = false.obs;
 
   Future<void> selectImage(BuildContext context) async {
@@ -176,5 +179,57 @@ class ImageEnhancementViewmodel extends GetxController {
       isImageSaving.value = false;
       update();
     }
+  }
+
+  void showDeleteDialog(BuildContext context) {
+    showDialog(
+        context: context,
+        builder: (_) {
+          return CupertinoAlertDialog(
+            title: Text(
+              'Reset Image',
+              style: GoogleFonts.openSans(
+                  fontSize: 20.sp,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.primaryBlackColor),
+            ),
+            content: Text(
+              'Are you sure you want to reset the image?',
+              textAlign: TextAlign.start,
+              style: GoogleFonts.openSans(
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.w400,
+                  color: AppColors.secondaryBlackColor),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text(
+                  'Cancel',
+                  style: GoogleFonts.openSans(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.brandColor),
+                ),
+              ),
+              TextButton(
+                onPressed: () {
+                  selectedImage = null;
+                  update();
+                  Navigator.pop(context);
+                },
+                child: Text(
+                  'Reset',
+                  style: GoogleFonts.openSans(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.brandColor),
+                ),
+              ),
+            ],
+          );
+        });
   }
 }
