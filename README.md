@@ -1,6 +1,8 @@
 # Doc-Scanner
 
-.Doc-Scanner is a document scanner focued to make document scanning easy with different-different types of features for a scanned document. This project is for college as a final year project to showcase skills to the college. It will be available for Android,iOS,MacOS,Windows.
+.Doc-Scanner is a document scanner focued to make document scanning easy with different-different types of features for a scanned document. This project is for college as a final year (Session 2024-2025) project to showcase skills to the college. It will be available for Android,iOS,MacOS,Windows.
+
+The submission date is 9-Jul-2025
 
 ## Getting Started
 
